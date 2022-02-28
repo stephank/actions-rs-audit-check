@@ -8,6 +8,8 @@ import { checks } from '@actions-rs/core';
 import * as interfaces from './interfaces';
 import * as templates from './templates';
 
+type GitHub = ReturnType<typeof github.getOctokit>;
+
 interface Stats {
     critical: number;
     notices: number;
@@ -133,7 +135,7 @@ function getSummary(stats: Stats): string {
 
 /// Create and publish audit results into the Commit Check.
 export async function reportCheck(
-    client: github.GitHub,
+    client: GitHub,
     vulnerabilities: Array<interfaces.Vulnerability>,
     warnings: Array<interfaces.Warning>,
 ): Promise<void> {
@@ -201,11 +203,11 @@ See https://github.com/actions-rs/clippy-check/issues/2 for details.`);
 }
 
 async function alreadyReported(
-    client: github.GitHub,
+    client: GitHub,
     advisoryId: string,
 ): Promise<boolean> {
     const { owner, repo } = github.context.repo;
-    const results = await client.search.issuesAndPullRequests({
+    const results = await client.rest.search.issuesAndPullRequests({
         q: `${advisoryId} in:title repo:${owner}/${repo}`,
         per_page: 1, // eslint-disable-line @typescript-eslint/camelcase
     });
@@ -222,7 +224,7 @@ will not report an issue against it`,
 }
 
 export async function reportIssues(
-    client: github.GitHub,
+    client: GitHub,
     vulnerabilities: Array<interfaces.Vulnerability>,
     warnings: Array<interfaces.Warning>,
 ): Promise<void> {
@@ -240,7 +242,7 @@ export async function reportIssues(
         const body = nunjucks.renderString(templates.VULNERABILITY_ISSUE, {
             vulnerability: vulnerability,
         });
-        const issue = await client.issues.create({
+        const issue = await client.rest.issues.create({
             owner: owner,
             repo: repo,
             title: `${vulnerability.advisory.id}: ${vulnerability.advisory.title}`,
@@ -279,7 +281,7 @@ export async function reportIssues(
             warning: warning,
             advisory: advisory,
         });
-        const issue = await client.issues.create({
+        const issue = await client.rest.issues.create({
             owner: owner,
             repo: repo,
             title: `${advisory.id}: ${advisory.title}`,

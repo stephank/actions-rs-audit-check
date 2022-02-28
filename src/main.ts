@@ -76,7 +76,7 @@ export async function run(actionInput: input.Input): Promise<void> {
         return;
     }
 
-    const client = new github.GitHub(actionInput.token, {
+    const client = github.getOctokit(actionInput.token, {
         userAgent: USER_AGENT,
     });
     const advisories = report.vulnerabilities.list;
@@ -97,7 +97,7 @@ async function main(): Promise<void> {
     try {
         const actionInput = input.get();
         await run(actionInput);
-    } catch (error) {
+    } catch (error: any) {
         core.setFailed(error.message);
     }
 
