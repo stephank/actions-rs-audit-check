@@ -8,6 +8,10 @@ inputs:
   token:
     description: GitHub Actions token
     required: true
+  generate-lockfile:
+    description: Call 'cargo generate-lockfile' first
+    required: false
+    default: 'true'
 
 runs:
   using: 'node12'

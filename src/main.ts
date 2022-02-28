@@ -18,7 +18,9 @@ async function getData(): Promise<interfaces.Report> {
     const cargo = await Cargo.get();
     await cargo.findOrInstall('cargo-audit');
 
-    await cargo.call(['generate-lockfile']);
+    if (core.getBooleanInput('generate-lockfile')) {
+        await cargo.call(['generate-lockfile']);
+    }
 
     let stdout = '';
     try {
